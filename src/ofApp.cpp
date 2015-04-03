@@ -11,7 +11,7 @@ void ofApp::setup(){
     step = 9;
     bPause = false;
     
-    savePath = "export/";
+    destPath = "export/";
     bModalOpened = true;
     
     // gui
@@ -38,7 +38,7 @@ void ofApp::setup(){
     gui->addSpacer();
     gui->addLabel("Commands");
     gui->addLabelButton("clear", false);
-    gui->addLabelButton("set destination", false);
+    //gui->addLabelButton("set destination", false);
     //gui->addLabelButton("load initcond", false);
     
     gui->autoSizeToFitWidgets();
@@ -100,7 +100,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
         gs.allocate(texw, texh, GL_RGB32F);
         gen = 0;
     
-    } else if ( name == "set destination" && !ofGetMousePressed() && !bModalOpened ) {
+    }/* else if ( name == "set destination" && !ofGetMousePressed() && !bModalOpened ) {
         
         bModalOpened = true;
         ofFileDialogResult result = ofSystemSaveDialog("", "");
@@ -108,7 +108,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
         
         cout << result.getPath() << endl << result.getName();
         
-    }/* else if ( name == "load initcond" && !ofGetMousePressed() ) {
+    }*//* else if ( name == "load initcond" && !ofGetMousePressed() ) {
         
         ofFileDialogResult result = ofSystemLoadDialog();
         
@@ -147,6 +147,10 @@ void ofApp::update(){
             gen++;
         }
     }
+    
+    if (bRec) {
+        saveFrame();
+    }
 }
 
 //--------------------------------------------------------------
@@ -164,6 +168,9 @@ void ofApp::draw(){
     p.y += 16;
     ss.str("");
     ss << frameNum << " frames saved";
+    if (bRec) {
+        ss << " (REC)";
+    }
     ofDrawBitmapString(ss.str(), p);
     
     p.y += 16;
@@ -180,14 +187,32 @@ void ofApp::exit() {
 }
 
 //--------------------------------------------------------------
+
+void ofApp::saveFrame() {
+    // save one frame
+    ofTexture &tex = gs.getTextureReference();
+    
+    tex.readToPixels(pixels);
+    
+    ss.str("");
+    ss << destPath << "gray-scott_" << setfill('0') << setw(8) << frameNum++ << ".tiff";
+    
+    ofSaveImage(pixels, ss.str());
+}
+
+//--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
     switch (key) {
         case ' ':
             bPause = !bPause;
             break;
+        case 'r':
+            bRec = !bRec;
+            break;
+        case 's':
             
-        default:
+            saveFrame();
             break;
     }
     

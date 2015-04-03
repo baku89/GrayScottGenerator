@@ -65,9 +65,15 @@ public:
                                    uniform float diffV;
                                    uniform float f;
                                    uniform float k;
+                                   uniform float width;
+                                   uniform float height;
                                    
                                    void main(void){
                                        vec2 st   = gl_TexCoord[0].st;
+                                       vec2 size = vec2(width, height);
+                                       
+                                       //gl_FragColor = vec4(st.x / width, st.y / height, 0.0, 1.0);
+                                       
                                        kernel[0] = 0.707106781;
                                        kernel[1] = 1.0;
                                        kernel[2] = 0.707106781;
@@ -96,7 +102,10 @@ public:
                                        vec2 lap = vec2( 0.0, 0.0 );
                                        
                                        for( int i=0; i < 9; i++ ){
-                                           vec2 tmp = texture2DRect( backbuffer, st + offset[i] ).rb;
+                                           
+                                           vec2 pos = st + offset[i] + size;
+                                           
+                                           vec2 tmp = texture2DRect( backbuffer, mod(pos, size) ).rb;
                                            lap += tmp * kernel[i];
                                        }
                                        
@@ -141,6 +150,8 @@ public:
             shader.setUniform1f( "diffV", (float)diffV);
             shader.setUniform1f( "f", (float)f );
             shader.setUniform1f( "k", (float)k );
+            shader.setUniform1f( "width", (float)getWidth() );
+            shader.setUniform1f( "height", (float)getHeight() );
             renderFrame();
             shader.end();
             pingPong.dst->end();

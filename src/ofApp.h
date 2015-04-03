@@ -15,6 +15,7 @@ public:
     void guiEvent(ofxUIEventArgs &e);
     
     void drawGrayScott(int x, int y);
+    void saveFrame();
 
     void keyPressed(int key);
     void keyReleased(int key);
@@ -38,6 +39,8 @@ public:
     
     GrayScott32 gs;
     
+    ofPixels pixels;
+    
     float f, k, diffU, diffV;
     float step;
     
@@ -46,5 +49,5 @@ public:
     bool bPause, bRec;
     bool bModalOpened;
     
-    string savePath;
+    string destPath;
 };
