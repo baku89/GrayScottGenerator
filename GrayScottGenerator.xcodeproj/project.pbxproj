@@ -193,6 +193,7 @@
 		8C4EF175FF0B7ED0CE6F5FE3 /* ofxNoise.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxNoise.h; path = ../../../addons/ofxFX/src/generative/ofxNoise.h; sourceTree = SOURCE_ROOT; };
 		8EB521E333C7B0CE4CF802B3 /* ofxFire.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxFire.h; path = ../../../addons/ofxFX/src/generative/ofxFire.h; sourceTree = SOURCE_ROOT; };
 		8F8238006E98A8E39851968C /* ofxUIButton.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxUIButton.cpp; path = ../../../addons/ofxUI/src/ofxUIButton.cpp; sourceTree = SOURCE_ROOT; };
+		92488A621ACE820F00E18A23 /* screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screenshot.png; sourceTree = "<group>"; };
 		92696C363FF18AA6DFAAD969 /* ofxChromaAb.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxChromaAb.h; path = ../../../addons/ofxFX/src/filters/ofxChromaAb.h; sourceTree = SOURCE_ROOT; };
 		929D85F71ACE5A1100C6B1CE /* GrayScott32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrayScott32.h; sourceTree = "<group>"; };
 		9345327AA463407B3DADBADE /* ofxUIWaveform.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxUIWaveform.cpp; path = ../../../addons/ofxUI/src/ofxUIWaveform.cpp; sourceTree = SOURCE_ROOT; };
@@ -376,6 +377,14 @@
 				01DCC0911400F9ACF5B65578 /* ofxXmlSettings.h */,
 			);
 			name = src;
+			sourceTree = "<group>";
+		};
+		92488A611ACE820F00E18A23 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				92488A621ACE820F00E18A23 /* screenshot.png */,
+			);
+			path = doc;
 			sourceTree = "<group>";
 		};
 		A492CE86424AB8905550BFD8 /* ofxUI */ = {
@@ -568,6 +577,7 @@
 			children = (
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
+				92488A611ACE820F00E18A23 /* doc */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
