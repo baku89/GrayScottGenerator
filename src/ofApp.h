@@ -15,6 +15,8 @@ public:
     void guiEvent(ofxUIEventArgs &e);
     
     void drawGrayScott(int x, int y);
+	
+	void updateCompSettings();
     void saveFrame();
 
     void keyPressed(int key);
@@ -31,23 +33,27 @@ public:
     stringstream ss;
     
     ofxUISuperCanvas    *gui;
-    ofxUILabel          *guiInfo, *guiRec;
+    ofxUILabel          *guiInfo, *guiGen, *guiFilename, *guiRec;
     ofxUINumberDialer   *guiFPS, *guiTexw, *guiTexh, *guiZoom;
+	ofxUIToggle			*guiFloat;
     
     // screen settings
     float scale;
     
     GrayScott32 gs;
     
-    ofPixels pixels;
-    
+	ofPixels pixels;
+	ofFloatPixels floatPixels;
+	
     float f, k, diffU, diffV;
     float step;
     
-    int gen, frameNum;
-    
+	int gen, savedNum;
+	
     bool bPause, bRec;
     bool bModalOpened;
+	bool bCaptured;
+	bool bFloating;
     
-    string destPath;
+	string filename;
 };

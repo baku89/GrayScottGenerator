@@ -102,9 +102,7 @@ public:
                                        vec2 lap = vec2( 0.0, 0.0 );
                                        
                                        for( int i=0; i < 9; i++ ){
-                                           
                                            vec2 pos = st + offset[i] + size;
-                                           
                                            vec2 tmp = texture2DRect( backbuffer, mod(pos, size) ).rb;
                                            lap += tmp * kernel[i];
                                        }
@@ -113,7 +111,7 @@ public:
                                        float K  = k + srcTexColor * 0.025 - 0.0005;
                                        
                                        float u  = texColor.r;
-                                       float v  = texColor.g + srcTexColor * 0.5;
+                                       float v  = texColor.g + srcTexColor * 0.2;
                                        
                                        float uvv = u * v * v;
                                        

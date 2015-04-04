@@ -1,36 +1,56 @@
 #include "ofApp.h"
 
+
+// init settings
+
+#define DEFAULT_F		0.07f
+#define DEFAULT_K		0.077f
+#define DEFAULT_DIFF_U	0.25f
+#define DEFAULT_DIFF_V	0.04f
+#define DEFAULT_STEP	9
+#define DEFAULT_TEXW	1024
+#define DEFAULT_TEXH	1024
+#define DEFAULT_ZOOM	1
+#define DEFAULT_FPS		24
+#define DEFAULT_FILENAME "gray-scott"
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     
     // initial parameters
-    f = 0.0195f;
-    k = 0.066f;
-    diffU = 0.25f;
-    diffV = 0.04f;
-    step = 9;
+	f = DEFAULT_F;
+	k = DEFAULT_K;
+	diffU = DEFAULT_DIFF_U;
+	diffV = DEFAULT_DIFF_V;
+	step = DEFAULT_STEP;
     bPause = false;
-    
-    destPath = "export/";
-    bModalOpened = true;
-    
+	
+	bModalOpened = false;
+	
+	filename = DEFAULT_FILENAME;
+	
     // gui
     gui = new ofxUISuperCanvas("Control Panel");
     
     gui->addSpacer();
     gui->addFPS();
-    guiInfo = gui->addLabel("info", "1024 x 1024, zoom: 1/1");
-    guiFPS  = gui->addNumberDialer("FPS", 1, 60, 24, 0);
-    guiTexw = gui->addNumberDialer("texture width", 128, 2048, 1024, 0);
-    guiTexh = gui->addNumberDialer("texture height", 128, 2048, 1024, 0);
-    guiZoom = gui->addNumberDialer("zoom out (1/n)", 1, 8, 1, 0);
-    
+    guiInfo = gui->addLabel("");
+	guiGen  = gui->addLabel("");
+	guiFilename = gui->addLabel("");
+	
+	gui->addSpacer();
+	gui->addLabel("Comp Settings");
+    guiFPS  = gui->addNumberDialer("fps", 1, 60, 24, 0);
+    guiTexw = gui->addNumberDialer("texture width", 128, 2048, DEFAULT_TEXW, 0);
+    guiTexh = gui->addNumberDialer("texture height", 128, 4096, DEFAULT_TEXH, 0);
+    guiZoom = gui->addNumberDialer("zoom (1/n)", 1, 8, DEFAULT_ZOOM, 0);
+	guiFloat= gui->addToggle("enable 32bit", false);
     gui->addLabelButton("apply", false);
     
     gui->addSpacer();
     gui->addLabel("Parameters");
-    gui->addSlider("K", 0.005, 0.095, &k);
-    gui->addSlider("F", 0.01, 0.028, &f);
+    gui->addSlider("K", 0.005, 0.1, &k);
+    gui->addSlider("F", 0.01, 0.1, &f);
     gui->addSlider("diff U", 0.001, 0.4f, &diffU);
     gui->addSlider("diff V", 0.001, 0.05f, &diffV);
     gui->addNumberDialer("step", 1, 30, &step, 0);
@@ -38,6 +58,7 @@ void ofApp::setup(){
     gui->addSpacer();
     gui->addLabel("Commands");
     gui->addLabelButton("clear", false);
+	gui->addLabelButton("change filename", false);
     //gui->addLabelButton("set destination", false);
     //gui->addLabelButton("load initcond", false);
     
@@ -46,22 +67,30 @@ void ofApp::setup(){
     gui->loadSettings("gui.xml");
     
     ofAddListener(gui->newGUIEvent, this, &ofApp::guiEvent);
-    
-    
-    // set window
-    int fps = (int)guiFPS->getValue();
-    int texw = (int)guiTexw->getValue();
-    int texh = (int)guiTexh->getValue();
-    int zoom = (int)guiZoom->getValue();
-    
-    gs.allocate(texw, texh, GL_RGB32F);
-    ofSetWindowShape(texw / zoom, texh / zoom);
-    scale = 1.0f / (float)zoom;
-    gen = 0;
-    
-    ss << texw << " x " << texh << ", zoom: 1/" << zoom;
-    guiInfo->setLabel(ss.str());
-    
+	
+	updateCompSettings();
+}
+
+//--------------------------------------------------------------
+void ofApp::updateCompSettings() {
+	
+	// set window
+	int texw = (int)guiTexw->getValue();
+	int texh = (int)guiTexh->getValue();
+	int zoom = (int)guiZoom->getValue();
+	
+	gs.allocate(texw, texh, GL_RGB32F);
+	pixels.allocate(texw, texh, 3);
+	floatPixels.allocate(texw, texh, 3);
+	
+	ofSetWindowShape(texw / zoom, texh / zoom);
+	scale = 1.0f / (float)zoom;
+	gen = 0;
+	
+	bFloating = guiFloat->getValue();
+	
+	ss << texw << " x " << texh << ", zoom: 1/" << zoom;
+	guiInfo->setLabel(ss.str());
 }
 
 //--------------------------------------------------------------
@@ -77,30 +106,28 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
     
     if ( name == "apply" && !ofGetMousePressed() ) {
         
-        int fps = (int)guiFPS->getValue();
-        int texw = (int)guiTexw->getValue();
-        int texh = (int)guiTexh->getValue();
-        int zoom = (int)guiZoom->getValue();
+		updateCompSettings();
+		
+	} else if ( name == "fps" ) {
+	
+		ofSetFrameRate( (int)guiFPS->getValue() );
+		
+	} else if ( name == "clear" && !ofGetMousePressed() ) {
         
-        ofSetFrameRate( fps );
-        gs.allocate(texw, texh, GL_RGB32F);
-        ofSetWindowShape(texw / zoom, texh / zoom);
-        scale = 1.0f / (float)zoom;
-        gen = 0;
-        
-        ss.str("");
-        ss << texw << " x " << texh << ", zoom: 1/" << zoom;
-        guiInfo->setLabel(ss.str());
-        
-    } else if ( name == "clear" && !ofGetMousePressed() ) {
-        
-        int texw = (int)guiTexw->getValue();
-        int texh = (int)guiTexh->getValue();
-        
-        gs.allocate(texw, texh, GL_RGB32F);
-        gen = 0;
+		updateCompSettings();
     
-    }/* else if ( name == "set destination" && !ofGetMousePressed() && !bModalOpened ) {
+	} else if ( name == "change filename" && !ofGetMousePressed() && !bModalOpened ) {
+		
+		bModalOpened = true;
+		string str = ofSystemTextBoxDialog("enter filename");
+		bModalOpened = false;
+		
+		if (str != "") {
+			filename = str;
+			savedNum = 0;
+		}
+		
+	}/* else if ( name == "set destination" && !ofGetMousePressed() && !bModalOpened ) {
         
         bModalOpened = true;
         ofFileDialogResult result = ofSystemSaveDialog("", "");
@@ -157,23 +184,31 @@ void ofApp::update(){
 void ofApp::draw(){
 
     gs.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
-    
-    ofPoint p;
-    p.set(ofGetWindowWidth() - 400, ofGetWindowHeight() - 60);
-
+	
+	if (bCaptured) {
+		ofSetColor(255);
+		ofNoFill();
+		ofSetLineWidth(10);
+		ofRect(ofGetWindowRect());
+	}
+	bCaptured = false;
+	
+	// ofxUI
     ss.str("");
-    ss << "generation: " << gen;
-    ofDrawBitmapString(ss.str(), p);
-    
-    p.y += 16;
-    ss.str("");
-    ss << frameNum << " frames saved";
+    ss << "Generation: " << gen;
+	guiGen->setLabel(ss.str());
+	
+	ss.str("");
+	ss << "filename:" << filename << setfill('0') << setw(8) << savedNum;
     if (bRec) {
         ss << " (REC)";
     }
-    ofDrawBitmapString(ss.str(), p);
-    
-    p.y += 16;
+	guiFilename->setLabel(ss.str());
+	
+	// HUD
+	ofPoint p;
+	p.set(ofGetWindowWidth() - 400, ofGetWindowHeight() - 40);
+	
     ofDrawBitmapString("[space]: toggle play/pause, [r]: toggle rec", p);
     
     p.y += 16;
@@ -191,13 +226,19 @@ void ofApp::exit() {
 void ofApp::saveFrame() {
     // save one frame
     ofTexture &tex = gs.getTextureReference();
-    
-    tex.readToPixels(pixels);
-    
+ 
     ss.str("");
-    ss << destPath << "gray-scott_" << setfill('0') << setw(8) << frameNum++ << ".tiff";
-    
-    ofSaveImage(pixels, ss.str());
+    ss << filename << "/" << filename << setfill('0') << setw(8) << savedNum++ << ".tiff";
+	
+	if (bFloating) {
+		tex.readToPixels(floatPixels);
+		ofSaveImage(floatPixels, ss.str());
+	} else {
+		tex.readToPixels(pixels);
+		ofSaveImage(pixels, ss.str());
+	}
+	
+	bCaptured = true;
 }
 
 //--------------------------------------------------------------
@@ -211,7 +252,6 @@ void ofApp::keyPressed(int key){
             bRec = !bRec;
             break;
         case 's':
-            
             saveFrame();
             break;
     }
@@ -252,6 +292,8 @@ void ofApp::drawGrayScott(int x, int y){
     
     gs.begin();
     ofSetColor(ofNoise( ofGetElapsedTimef() ) * 0xff);
+	ofFill();
+	ofSetLineWidth(0);
     ofCircle(x / scale, y / scale, 3);
     gs.end();
 }
