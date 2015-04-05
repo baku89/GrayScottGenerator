@@ -24,6 +24,8 @@ void ofApp::setup(){
 	diffV = DEFAULT_DIFF_V;
 	step = DEFAULT_STEP;
     bPause = false;
+	bRec = false;
+	savedNum = 0;
 	
 	bModalOpened = false;
 	
@@ -87,6 +89,7 @@ void ofApp::updateCompSettings() {
 	scale = 1.0f / (float)zoom;
 	gen = 0;
 	
+	
 	bFloating = guiFloat->getValue();
 	
 	ss << texw << " x " << texh << ", zoom: 1/" << zoom;
@@ -101,8 +104,6 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
     }
     
     string name = e.widget->getName();
-    
-    cout << name << endl;
     
     if ( name == "apply" && !ofGetMousePressed() ) {
         
@@ -199,18 +200,16 @@ void ofApp::draw(){
 	guiGen->setLabel(ss.str());
 	
 	ss.str("");
-	ss << "filename:" << filename << setfill('0') << setw(8) << savedNum;
+	ss << "name: " << filename << "-" << savedNum;
     if (bRec) {
-        ss << " (REC)";
+        ss << " (R)";
     }
 	guiFilename->setLabel(ss.str());
 	
 	// HUD
 	ofPoint p;
 	p.set(ofGetWindowWidth() - 400, ofGetWindowHeight() - 40);
-	
     ofDrawBitmapString("[space]: toggle play/pause, [r]: toggle rec", p);
-    
     p.y += 16;
     ofDrawBitmapString("[s]: save current frame", p);
 }
